@@ -15,8 +15,8 @@ local DEFAULT_CONFIG = {
 }
 
 local ICON_FILE = "status_frame_icon"
-local ICON_REQUIRE_PATH = "~src/StatusFrame/" .. ICON_FILE
-local ICON_FILE_PATH = "scripts/bastion/src/StatusFrame/" .. ICON_FILE .. ".lua"
+local ICON_REQUIRE_PATH = "~StatusFrame/" .. ICON_FILE
+local ICON_FILE_PATH = "scripts/StatusFrame/" .. ICON_FILE .. ".lua"
 
 ---Create a deep copy so shared defaults are never mutated
 ---@param value any
@@ -54,7 +54,7 @@ local function loadSavedIcon()
         if Bastion and Bastion.Require then
             return Bastion:Require(ICON_REQUIRE_PATH)
         end
-        return require(ICON_FILE)
+        return Require(ICON_FILE)
     end)
 
     if ok and type(result) == "table" then

@@ -7,13 +7,13 @@ local Bastion = {DebugMode = false}
 Bastion.__index = Bastion
 
 function Bastion:Require(file)
-    -- If require starts with an @ then we require from the scripts/bastion/scripts folder
+    -- If require starts with an @ then we require from the scripts/scripts folder
     if file:sub(1, 1) == '@' then
         file = file:sub(2)
-        return Require('scripts/bastion/scripts/' .. file, Bastion)
+        return Require('scripts/scripts/' .. file, Bastion)
     elseif file:sub(1, 1) == "~" then
         file = file:sub(2)
-        return Require('scripts/bastion/' .. file, Bastion)
+        return Require('scripts/' .. file, Bastion)
     else
         return Require(file, Bastion)
     end
@@ -24,12 +24,12 @@ local function Load(dir)
 
     if dir:sub(1, 1) == '@' then
         dir = dir:sub(2)
-        dir = 'scripts/bastion/scripts/' .. dir
+        dir = 'scripts/scripts/' .. dir
     end
 
     if dir:sub(1, 1) == '~' then
         dir = dir:sub(2)
-        dir = 'scripts/bastion/' .. dir
+        dir = 'scripts/' .. dir
     end
 
     local files = ListFiles(dir)
@@ -44,7 +44,7 @@ local function Load(dir)
 end
 
 function Bastion.require(class)
-    return Bastion:Require(class .. "/" .. class)
+    return Bastion:Require("~" .. class .. "/" .. class)
 end
 
 -- Bootstrap function for initializing all required files

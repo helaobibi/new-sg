@@ -264,7 +264,7 @@ function Unit:GetOMToken()
     if not self.unit then
         return "none"
     end
-    return self.unit:unit()
+    return self.unit
 end
 
 -- Is the unit a target
