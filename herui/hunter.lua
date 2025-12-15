@@ -7,51 +7,9 @@ local Tinkr, Bastion = ...
 local HunterUI = {}
 HunterUI.__index = HunterUI
 
--- 保存 Hunter UI 位置的设置文件名（不带路径）
-local POSITION_FILE = "herui_position"
-local POSITION_REQUIRE_PATH = "~src/herui/" .. POSITION_FILE  -- Require 时使用 _bastion.lua 中的 ~ 规则
-local POSITION_FILE_PATH = "scripts/bastion/src/herui/" .. POSITION_FILE .. ".lua"  -- 保存文件的完整路径
-
 local function trim(str)
     if not str then return str end
     return (str:gsub("^%s+", "")):gsub("%s+$", "")
-end
-
--- 在 UI 创建前尝试从上一次保存的位置文件中恢复位置
-local function HERUI_LoadSavedPosition()
-    -- 确保表存在
-    HERUISettings = HERUISettings or {}
-
-    if Bastion and Bastion.Debug then
-        Bastion:Debug("HERUI load position from:", POSITION_FILE_PATH)
-    end
-
-    -- 用 pcall 防止 require 失败报错
-    local ok, result = pcall(function()
-        -- 使用 Bastion:Require 走 ~ 路径，确保从 scripts/bastion/ 读取
-        if Bastion and Bastion.Require then
-            return Bastion:Require(POSITION_REQUIRE_PATH)
-        end
-        return require(POSITION_FILE)   -- 退化为普通 require，保持兼容
-    end)
-
-    if ok and type(result) == "table" then
-        -- 把返回的 table 填回 HERUISettings.framePosition
-        HERUISettings.framePosition = {
-            point = result.point or "CENTER",
-            relativePoint = result.relativePoint or "CENTER",
-            x = result.x or 0,
-            y = result.y or 0,
-        }
-        if Bastion and Bastion.Debug then
-            Bastion:Debug("HERUI position load success:", HERUISettings.framePosition.point, HERUISettings.framePosition.relativePoint, HERUISettings.framePosition.x, HERUISettings.framePosition.y)
-        end
-    else
-        -- 载入失败时静默忽略，使用默认 CENTER 位置
-        if not ok and Bastion and Bastion.Debug then
-            Bastion:Debug("HERUI position load failed:", result)
-        end
-    end
 end
 
 -- =============================================
@@ -128,67 +86,21 @@ end
 -- =============================================
 ---@return nil
 function HunterUI:CreateMainFrame()
-    -- 1. 优先尝试从文件恢复位置（如果文件不存在会被安全忽略）
-    HERUI_LoadSavedPosition()
-
-    -- 2. 创建框体
+    -- 1. 创建框体
     self.frame = CreateFrame("Frame", "MainFrame", UIParent)
     self.frame:SetSize(420, 90)
 
-    -- 3. 从内存设置中恢复位置，如果不存在则用默认 CENTER
-    HERUISettings = HERUISettings or {}
-    local savedPosition = HERUISettings.framePosition or {
-        point = "CENTER",
-        relativePoint = "CENTER",
-        x = 0,
-        y = 0,
-    }
-
-    self.frame:SetPoint(
-        savedPosition.point,
-        UIParent,
-        savedPosition.relativePoint,
-        savedPosition.x,
-        savedPosition.y
-    )
+    -- 2. 默认位置
+    self.frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
 
     self.frame:SetMovable(true)
     self.frame:EnableMouse(true)
     self.frame:RegisterForDrag("LeftButton")
     self.frame:SetScript("OnDragStart", self.frame.StartMoving)
 
-    -- 4. 拖动结束时：更新内存 + 写入文件
+    -- 3. 拖动结束时：仅停止移动（不保存位置）
     self.frame:SetScript("OnDragStop", function(frame)
         frame:StopMovingOrSizing()
-
-        local point, _, relativePoint, x, y = frame:GetPoint()
-
-        -- 更新内存中的位置
-        HERUISettings = HERUISettings or {}
-        HERUISettings.framePosition = {
-            point = point,
-            relativePoint = relativePoint,
-            x = x,
-            y = y,
-        }
-
-        -- 生成配置文件内容（注意和你现在的格式保持一致：return { ... }）
-        local code = string.format([[
-return {
-    point = %q,
-    relative = "UIParent",
-    relativePoint = %q,
-    x = %f,
-    y = %f,
-}
-]], point, relativePoint, x, y)
-
-        -- 写入 scripts/bastion/herui_position.lua，使用 ~ 路径规则
-        local saved = WriteFile(POSITION_FILE_PATH, code, false)
-
-        if Bastion and Bastion.Debug then
-            Bastion:Debug("HERUI position saved:", point, relativePoint, x, y, "write ok:", saved)
-        end
     end)
 end
 
