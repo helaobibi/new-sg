@@ -10,12 +10,12 @@ function Bastion:Require(file)
     -- If require starts with an @ then we require from the scripts/bastion/scripts folder
     if file:sub(1, 1) == '@' then
         file = file:sub(2)
-        return require('scripts/bastion/scripts/' .. file, Bastion)
+        return Require('scripts/bastion/scripts/' .. file, Bastion)
     elseif file:sub(1, 1) == "~" then
         file = file:sub(2)
-        return require('scripts/bastion/' .. file, Bastion)
+        return Require('scripts/bastion/' .. file, Bastion)
     else
-        return require(file, Bastion)
+        return Require(file, Bastion)
     end
 end
 
@@ -44,7 +44,7 @@ local function Load(dir)
 end
 
 function Bastion.require(class)
-    return Bastion:Require("~/src/" .. class .. "/" .. class)
+    return Bastion:Require(class .. "/" .. class)
 end
 
 -- Bootstrap function for initializing all required files
@@ -439,14 +439,14 @@ function Bastion.Bootstrap()
     end
 
     -- ===================== 外部文件加载 =====================
-    Load("@Libraries/")
-    Load("@Modules/")
-    Load("@")
+    Load("Library/")
+    Load("Module/")
+    Load("scripts/")
 
     -- 加载职业 UI
     local _, playerClass = UnitClass("player")
     if playerClass == "HUNTER" then
-        Bastion:Require("~/src/herui/hunter")
+        Bastion:Require("herui/hunter")
         Bastion:Print("已加载猎人UI")
     end
 end
