@@ -116,8 +116,6 @@ function Bastion.Bootstrap()
     -- ===================== UI 系统初始化 =====================
     ---@type StatusFrame
     Bastion.StatusFrame = Bastion.require("StatusFrame")
-    ---@type DrawLine
-    Bastion.DrawLine = Bastion.require("DrawLine")
 
     -- 创建 UI 容器
     Bastion.UI = {}
@@ -128,14 +126,6 @@ function Bastion.Bootstrap()
         position = { point = "CENTER", x = -500, y = 300 },
         icon = "Interface\\Icons\\Ability_Hunter_RunningShot"
     })
-
-    -- 初始化绘制线条功能
-    Bastion.UI.DrawLine = Bastion.DrawLine:New({
-        color = { r = 255, g = 0, b = 0 },
-        width = 3,
-        alpha = 255
-    })
-    Bastion.UI.DrawLine:SetupDefaultSync()
 
     -- ===================== 状态显示更新函数 =====================
     function Bastion:UpdateStatusDisplay()
@@ -381,15 +371,6 @@ function Bastion.Bootstrap()
     Command:Register('missed', 'Dump the list of immune kidney shot spells', function()
         for k, v in pairs(missed) do
             Bastion:Print(k)
-        end
-    end)
-
-    Command:Register('draw', 'Toggle draw line from player to target', function()
-        local enabled = Bastion.UI.DrawLine:Toggle()
-        if enabled then
-            Bastion:Print("Draw line enabled - 红线从玩家到目标已开启")
-        else
-            Bastion:Print("Draw line disabled - 红线绘制已关闭")
         end
     end)
 
